@@ -41,25 +41,27 @@ var questionsArr = [
 
 
   var questionContent = document.createElement("p");
-  var answerChoices
+  
   
 
-  var countdown = document.createElement("P");
+  var countdown = document.createElement("p");
+  quiz.appendChild(countdown);
   var seconds = 30;
   var timer
 
   var previousScoreElement = document.createElement("p");
   var previousScoreInput = localStorage.getItem('previous-score');
+  var playedBefore = localStorage.getItem('playedBefore')
 
-  var startButton = document.createElement("button");
-  startButton.setAttribute('id', 'start-quiz');
-  startButton.innerHTML = "Start Quiz!";
+
  
 
 
 // create function to start the quiz
 // if user goes on the page and already played, previous score will show with Start Button
 // if user has not played before, then only Start button will show
+
+startQuiz()
 
 function startQuiz() {
     if (playedBefore) {
@@ -68,7 +70,7 @@ function startQuiz() {
     }
 
     if (playingAgain) {
-        updateDate()
+        updateData()
         countdown.remove()
         playingAgain = false
         currentScore = 0
@@ -76,7 +78,115 @@ function startQuiz() {
         quizContainer.remove()
         questionContent.remove() 
     }
+
+    var startButton = document.createElement("button");
+    startButton.setAttribute('id', 'start-quiz');
+    startButton.innerHTML = "Start Quiz!";
     quiz.appendChild(startButton);
     startButton.addEventListener('click', nextQuestion)
 }
 
+
+
+function answerChoices() {
+    var answerContent = document.createElement("button")
+    questionsArr[currentQuestion].options.forEach(function(option){
+        answerContent.innerHTML = option;
+        quizContainer.appendChild(answerContent);
+        answerContent.addEventListener("click",compare) // make compare functiont to check if option clicked is correct or not
+    })
+}
+
+
+// set timer
+
+function timerStarts () {
+timer = setInterval(function() {
+    seconds--
+    countdown.innerHTML = seconds;
+
+    if(seconds <= 0) {
+        resetTimer()    // need to create reset for timer
+     
+
+        if((currentQuestion+1) < questionsArr.length){
+            quizContainer.innerHTML = "";
+            currentQuestion++;
+            nextQuestion()
+        }
+
+    // for the last question
+
+        if ((currentQuestion+1) == questionsArr.length) {
+            playingAgain = true;
+            updateData()
+            startQuiz()
+        }
+    }
+    }, 1000)
+}
+
+
+//reset timer
+
+function resetTimer () {
+    seconds = 30
+    clearInterval(timer)
+    countdown.innerHTML = ""
+}
+
+// new question
+
+function nextQuestion() {
+
+    timerStarts()
+
+    //initial start
+    if (currentQuestion == 0) {
+        startButton.remove()
+        previousScoreElement.remove()
+    }
+
+    //other questions
+    questionContent.innerHTML = questionsArr[currentQuestion].question;
+
+    //option function
+    answerChoices()
+
+    //timer display
+    countdown.innerHTML = seconds
+    quiz.appendChild(countdown)
+}
+
+function compare () {
+    resetTimer()
+
+    //check answer
+    if (questionsArr[currentQuestion].answer == this.innerHTML){
+        currentScore++
+    }
+    
+    // remaining questions
+    if (currentQuestion+1 < questionsArr.length) {
+        currentQuestion++
+        quizContainer.innerHTML = ""
+        nextQuestion()
+    }
+
+    //last question
+    else if ((currentQuestion+1)== questionsArr.length) {
+        updateData()
+        startQuiz()
+    }
+}
+
+//store
+function updateData() {
+    finalScore = Math.round((currentScore/questionsArr.length)*100)
+    localStorage.setItem('previous-score', finalScore)
+
+    playingAgain = true
+    localStorage.setItem('playedBefore', true)
+    playedBefore = localStorage.getItem('playedBefore', true)
+
+}
