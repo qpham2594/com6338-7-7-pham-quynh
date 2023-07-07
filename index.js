@@ -1,3 +1,5 @@
+// Your code here
+
 
 var questionsArr = [
     {
@@ -27,151 +29,160 @@ var questionsArr = [
     }
   ];
   
+// creating any variables needed
 
-var quiz = document.getElementById('quiz')
-var quizContainer = document.createElement("div")
-var currentScore = 0
-var finalScore = 0
-var quizBefore = localStorage.getItem('playedBefore')
+var quiz = document.getElementById('quiz');
+var quizContainer = document.createElement("div");
+var currentScore = 0;
+var finalScore = 0;
+var currentQuestion = 0;
+var quizBefore = localStorage.getItem('playedBefore');
 var quizAgain = false // setting variable here and define below so that if user is taking quiz again, the quiz can restart
-var currentQuestion = 0
 
-var previousScoreElement = document.createElement("p")
-var startBtn = document.createElement("button")
 
-var questionContent = document.createElement('p')
-var countdown = document.createElement('p')
-var seconds = 30
+var previousScoreElement = document.createElement("p");
+var startBtn = document.createElement("button");
+
+var questionContent = document.createElement('p');
+var countdown = document.createElement('p');
+var seconds = 30;
 var timer
 
 // create a function that will start the quiz so that the button will appear if the user took the quiz before or is taking it again
 startQuiz()
 
-//Sets up new game
+//Setting up the function to start the quiz
 function startQuiz(){
 
-    //if played before, show previous score to player
+    //if the user already took the quiz before, then the page will show previous score to user using localStorage
     if(quizBefore){
-        var previousScore = localStorage.getItem('previous-score')
-        previousScoreElement.innerHTML = ('Previous Score: ' + previousScore + '%')
+        var previousScore = localStorage.getItem('previous-score');
+        previousScoreElement.innerHTML = ('Previous Score: ' + previousScore + '%');
         quiz.appendChild(previousScoreElement) 
     }
 
 
     if(quizAgain){
-        
-        updateData() // updates score and player status
-        countdown.remove()
-        quizAgain = false
-        currentScore = 0
-        quizContainer.innerHTML = ""
-        quizContainer.remove() 
-        questionContent.remove()
+    
+        // if the user is taking the quiz again, then everything will reset
+
+        updateData();
+        countdown.remove();
+        quizAgain = false;
+        currentScore = 0;
+        quizContainer.innerHTML = "";
+        quizContainer.remove() ;
+        questionContent.remove();
         currentQuestion = 0 
     }
 
-    //Creates start button
-    startBtn.setAttribute('id','start-quiz')
-    startBtn.innerHTML = "Start Quiz!"
-    quiz.appendChild(startBtn)  
-    startBtn.addEventListener('click', nextQuestion)   
+    // creating the start button here, need a established DOM to use appendChild and innerHTML
+
+    startBtn.setAttribute('id','start-quiz');
+    startBtn.innerHTML = "Start Quiz!";
+    quiz.appendChild(startBtn)  ;
+    startBtn.addEventListener('click', nextQuestion) ;  
 }
 
-//Create option buttons from question array
+// using forEach to have each option as button, and use innerHTML and appendChild here when button is created
+
 function choices() {
-    for (let i = 0; i < questionsArr[currentQuestion].options.length; i++) {
-        var answerOptions = document.createElement("button")
-        answerOptions.innerHTML = questionsArr[currentQuestion].options[i]
-        answerOptions.addEventListener('click', compare)
-        quizContainer.appendChild(answerOptions)
-    }
-}
+    questionsArr[currentQuestion].options.forEach(function (option) {
+      var answerOptions = document.createElement("button");
+      answerOptions.innerHTML = option;
+      answerOptions.addEventListener('click', compare);
+      quizContainer.appendChild(answerOptions);
+    });
+  }
+  
 
-//Game timer
+// creating the timer
+
 function clockTimer(){
     timer = setInterval(function(){
-        seconds --
+        seconds --;
         countdown.innerHTML = seconds
-            //if time runs out 
+
+            // for when seconds = 0 
+
             if(seconds === 0){
                 resetTimer()
                 //questions remaining
                 if((currentQuestion < questionsArr.length - 1)) {
-                    quizContainer.innerHTML = ""
-                    currentQuestion ++
+                    quizContainer.innerHTML = "";
+                    currentQuestion ++;
                     nextQuestion()
                 } 
-                //last question
+
+                // for the very last question
+
                 else if(currentQuestion == questionsArr.length - 1){
-                    quizAgain = true
-                    updateData()
+                    quizAgain = true;
+                    updateData();
                     startQuiz() 
                 }   
             } 
         }, 1000)
 }
+// using questionsArr.length -1 or currentQuestion+1 < questionsArr.length is to check the following situation whereas currentQuestion < questionsArr.length is only for the current situation comparison
 
-//Reset timer (when option is clicked or time runs out/new question)
+// need timer reset when changing questions
 function resetTimer(){
-    seconds = 30
-    clearInterval(timer)
+    seconds = 30;
+    clearInterval(timer);
     countdown.innerHTML = ""
 }
 
-//Presents new question/options to user
+// function to present question with the timer
 
 function nextQuestion(){
 
     clockTimer()
 
-    //If first round of game (remove start button and previous score)
+    // for when it's the first question, start button and previous score will be remove to start the quiz
     if(currentQuestion  == 0){
-        startBtn.remove()
+        startBtn.remove();
         previousScoreElement.remove()
     }
 
-    //Create and present question prompt to user
-    questionContent.innerHTML = questionsArr[currentQuestion].question
-    quiz.appendChild(questionContent)
-
-    //Create container to hold/format option buttons
-    quiz.appendChild(quizContainer)
-    
-    //Create and present option buttons to user
-    choices()
-
-    //present timer to user
-    countdown.innerHTML = seconds
+    // to display question content
+    questionContent.innerHTML = questionsArr[currentQuestion].question;
+    quiz.appendChild(questionContent);
+    quiz.appendChild(quizContainer);
+    // to display the options for user to click
+    choices();
+    //show the timer
+    countdown.innerHTML = seconds;
     quiz.appendChild(countdown) 
 }
 
 //Validate option selected by user
 function compare(){
-    resetTimer()
-    //validate answer and increase score if correct
+    resetTimer();
+    // if the input matches the answer then score will increase by 1
     if (questionsArr[currentQuestion].answer == this.innerHTML){
         currentScore++  
     }  
 
-    //if remaining questions present new question
+    //if there are any questions remaining, then it will move on to the next question
     if(currentQuestion < questionsArr.length-1){
-        currentQuestion ++
-        quizContainer.innerHTML = ""
+        currentQuestion ++;
+        quizContainer.innerHTML = "";
         nextQuestion()  
     }
-    //if last question, update score and reset game
+    //if the current question is the last question and there is no more question left, then the data will be updated with score
     else if(currentQuestion == questionsArr.length-1){
-        updateData()
+        updateData();
         startQuiz()
     }  
 }
 
-// Storing data to update score for user
+// Storing data to update score for user after calculating it
 function updateData(){
-    finalScore = Math.round((currentScore/questionsArr.length)*100)
-    localStorage.setItem('previous-score', finalScore)
-    localStorage.setItem('quizBefore', true)
-    quizBefore = localStorage.getItem('quizBefore', true)
+    finalScore = Math.round((currentScore/questionsArr.length)*100);
+    localStorage.setItem('previous-score', finalScore);
+    localStorage.setItem('quizBefore', true);
+    quizBefore = localStorage.getItem('quizBefore', true);
     quizAgain = true
 
 }
