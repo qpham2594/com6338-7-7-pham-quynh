@@ -84,17 +84,7 @@ function startQuiz(){
     startBtn.addEventListener('click', nextQuestion) ;  
 }
 
-// using forEach to have each option as button, and use innerHTML and appendChild here when button is created
 
-function choices() {
-    questionsArr[currentQuestion].options.forEach(function (option) {
-      var answerOptions = document.createElement("button");
-      answerOptions.innerHTML = option;
-      answerOptions.addEventListener('click', compare);
-      quizContainer.appendChild(answerOptions);
-    });
-  }
-  
 
 // creating the timer
 
@@ -132,6 +122,19 @@ function resetTimer(){
     clearInterval(timer);
     countdown.innerHTML = ""
 }
+
+
+// using forEach to have each option as button, and use innerHTML and appendChild here when button is created
+
+function choices() {
+    questionsArr[currentQuestion].options.forEach(function (option) {
+      var answerOptions = document.createElement("button");
+      answerOptions.innerHTML = option;
+      answerOptions.addEventListener('click', compare);
+      quizContainer.appendChild(answerOptions);
+    });
+  }
+  
 
 // function to present question with the timer
 
