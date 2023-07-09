@@ -36,7 +36,7 @@ var quizContainer = document.createElement("div");
 var currentScore = 0;
 var finalScore = 0;
 var currentQuestion = 0;
-var quizBefore = localStorage.getItem('playedBefore');
+var quizBefore = localStorage.getItem('quizBefore');
 var quizAgain = false // setting variable here and define below so that if user is taking quiz again, the quiz can restart
 
 
@@ -159,7 +159,7 @@ function nextQuestion(){
     quiz.appendChild(countdown) 
 }
 
-//Validate option selected by user
+//Checking option selected by user vs the actual answer
 function compare(){
     resetTimer();
     // if the input matches the answer then score will increase by 1
